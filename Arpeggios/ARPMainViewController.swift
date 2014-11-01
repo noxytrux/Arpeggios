@@ -109,8 +109,8 @@ class ARPMainViewController: UIViewController {
         
         //set unifor buffers
         
-//        sunBuffer = device.newBufferWithBytes(&sunData, length: sizeof(sunStructure), options: nil)
-//        matrixBuffer = device.newBufferWithBytes(&matrixData, length: sizeof(matrixStructure), options: nil)
+        sunBuffer = device.newBufferWithBytes(&sunData, length: sizeof(sunStructure), options: nil)
+        matrixBuffer = device.newBufferWithBytes(&matrixData, length: sizeof(matrixStructure), options: nil)
         
         //load models and scene
         
@@ -218,8 +218,6 @@ class ARPMainViewController: UIViewController {
         renderEncoder?.label = "Regular pass encoder"
         renderEncoder?.setFrontFacingWinding(.Clockwise)
         renderEncoder?.setDepthStencilState(baseStiencilState)
-        
-        sunBuffer = device.newBufferWithBytes(&sunData, length: sizeof(sunStructure), options: nil)
     
         renderEncoder?.setVertexBuffer(sunBuffer, offset: 0, atIndex: 2)
         
@@ -240,8 +238,7 @@ class ARPMainViewController: UIViewController {
                 normalMatrix.setTransposed(inverted)
             }
             
-//            var matrixPointer = UnsafeMutablePointer<matrixStructure>(matrixBuffer.contents())
-//            var matrixData = matrixPointer.memory
+            var matrixPointer = UnsafeMutablePointer<matrixStructure>(matrixBuffer.contents())
             
             //set updated buffer info
             modelViewMatrix.getColumnMajor44(&matrixData.viewMatrix)
@@ -249,8 +246,7 @@ class ARPMainViewController: UIViewController {
             var normal4x4 = Matrix34(rot: normalMatrix, trans: Vector3(x: 0, y: 0, z: 0))
                 normal4x4.getColumnMajor44(&matrixData.normalMatrix)
             
-            
-            matrixBuffer = device.newBufferWithBytes(&matrixData, length: sizeof(matrixStructure), options: nil)
+            memcpy(matrixPointer, &matrixData, UInt(sizeof(matrixStructure)))
             
             renderEncoder?.setVertexBuffer(matrixBuffer, offset: 0, atIndex: 1)
             
@@ -288,8 +284,7 @@ class ARPMainViewController: UIViewController {
         cameraMatrix = matrix44MakeLookAt(eyeVec, eyeVec+dirVec, upVec)
     
         //udpate sun position and color
-//        var sunPointer = UnsafeMutablePointer<sunStructure>(sunBuffer.contents())
-//        var sunInfo = sunPointer.memory
+        var sunPointer = UnsafeMutablePointer<sunStructure>(sunBuffer.contents())
         
         sunPosition.y += Float32(delta) * 0.1
         
@@ -301,6 +296,8 @@ class ARPMainViewController: UIViewController {
         var factor = 0.25 + sun_cosy * 0.75
         
         sunData.sunColor = ((orangeColor * (1.0 - factor)) + (yellowColor * factor))
+        
+        memcpy(sunPointer, &sunData, UInt(sizeof(sunStructure)))
         
         //update models rotation
         

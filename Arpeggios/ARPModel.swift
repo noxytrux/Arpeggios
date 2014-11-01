@@ -134,34 +134,27 @@ class ARPModel {
                         //load vertex data
                         for(index = 0; index < subMeshBuffer.vertexCount; index++)
                         {
-                            var position = Vector3(value: 0)
-                            var normal = Vector3(value: 0)
-                            var coord = Vector2(value: 0)
-                            
-                            data = readStream.readDataOfLength(sizeof(Vector3))
-                            data.getBytes(&position, length: sizeof(Vector3))
-                            
-                            data = readStream.readDataOfLength(sizeof(Vector2))
-                            data.getBytes(&coord, length: sizeof(Vector2))
-                            
-                            data = readStream.readDataOfLength(sizeof(Vector3))
-                            data.getBytes(&normal, length: sizeof(Vector3))
-                            
                             var vertexInfo = geometryInfo()
                             
-                            vertexInfo.position = position
-                            vertexInfo.normal = normal
-                            vertexInfo.texCoord = coord
+                            data = readStream.readDataOfLength(sizeof(Vector3))
+                            data.getBytes(&vertexInfo.position, length: sizeof(Vector3))
                             
+                            data = readStream.readDataOfLength(sizeof(Vector2))
+                            data.getBytes(&vertexInfo.texCoord, length: sizeof(Vector2))
+                            
+                            data = readStream.readDataOfLength(sizeof(Vector3))
+                            data.getBytes(&vertexInfo.normal, length: sizeof(Vector3))
+            
                             vertexData.append(vertexInfo)
                             
                             //println("pos: \(position) normal: \(normal) coord: \(coord)")
                         }
 
+                        var px:Int32 = 0,py:Int32 = 0,pz:Int32 = 0
+                        
                         //load face indexes
                         for(index = 0; index < subMeshBuffer.faceCount; index++)
                         {
-                            var px:Int32 = 0,py:Int32 = 0,pz:Int32 = 0
                             
                             data = readStream.readDataOfLength(sizeof(Int32))
                             data.getBytes(&px, length: sizeof(Int32))
@@ -170,7 +163,7 @@ class ARPModel {
                             data = readStream.readDataOfLength(sizeof(Int32))
                             data.getBytes(&pz, length: sizeof(Int32))
                             
-                            //or move seek to + 3 * sizeof Float32
+                            //seek by  3 * sizeof(Int32) (here is face normal)
                             data = readStream.readDataOfLength(sizeof(Int32) * 3)
                             
                             faceData[Int(index * 3 + 0)] = UInt16(px)
