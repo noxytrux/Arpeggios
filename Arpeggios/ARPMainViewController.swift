@@ -130,6 +130,7 @@ class ARPMainViewController: UIViewController {
             
             palmModel.modelScale = 0.12
             palmModel.modelMatrix.t = Vector3()
+            palmModel.modelMatrix.M.rotY(Float32(M_PI + (M_PI_4 * 0.5)))
             palmModel.setCullModeForMesh(1, mode: .None)
             
             loadedModels.append(palmModel)
@@ -140,9 +141,19 @@ class ARPMainViewController: UIViewController {
         if let boxModel = boxModel {
             
             boxModel.modelScale = 0.25
-            boxModel.modelMatrix.t = Vector3(x: 3, y:0, z:0)
+            boxModel.modelMatrix.t = Vector3(x: 2.5, y:0, z:0)
             
             loadedModels.append(boxModel)
+        }
+        
+        var barrelModel = ARPSingletonFactory<ARPModelManager>.sharedInstance().loadModel("barrel", device: device)
+        
+        if let barrelModel = barrelModel {
+            
+            barrelModel.modelScale = 0.1
+            barrelModel.modelMatrix.t = Vector3(x: -4, y:0, z:0)
+            
+            loadedModels.append(barrelModel)
         }
     }
     
@@ -319,9 +330,12 @@ class ARPMainViewController: UIViewController {
         for (index, model) in enumerate(loadedModels) {
         
             switch(index) {
-            case 0 :
+            case 2 :
                 
-                model.modelMatrix.M = rotMatrixY
+                var localRotation = Matrix33()
+                    localRotation.rotX(Float32(M_PI_2))
+                
+                model.modelMatrix.M = localRotation * rotMatrixZ
                 
             case 1 :
                 

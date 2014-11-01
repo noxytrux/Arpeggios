@@ -9,7 +9,7 @@
 #include "shaderCommon.h"
 
 vertex VertexOutput basicRenderVertex(device Vertex *vertexData [[ buffer(0) ]],
-                                      constant modelMatrices &matrices [[ buffer(1) ]],
+                                      constant modelMatrices *matrices [[ buffer(1) ]],
                                       constant sunData &sunInfo [[ buffer(2) ]],
                                       uint vid [[vertex_id]])
 {
@@ -20,16 +20,16 @@ vertex VertexOutput basicRenderVertex(device Vertex *vertexData [[ buffer(0) ]],
     float3 normal = float3(vData.normal);
     float4 sunDirection = float4(sunInfo.sunDirection, 1.0);
 
-    outVertex.v_position = matrices.projectionMatrix * matrices.modelViewMatrix * position;
+    outVertex.v_position = matrices->projectionMatrix * matrices->modelViewMatrix * position;
     
     //beacuse we cannot store normal matrix as 3x3 lets recalcualte it here
-    outVertex.v_normal = normal.xxx * matrices.normalMatrix[0].xyz;
-    outVertex.v_normal += normal.yyy * matrices.normalMatrix[1].xyz;
-    outVertex.v_normal += normal.zzz * matrices.normalMatrix[2].xyz;
+    outVertex.v_normal = normal.xxx * matrices->normalMatrix[0].xyz;
+    outVertex.v_normal += normal.yyy * matrices->normalMatrix[1].xyz;
+    outVertex.v_normal += normal.zzz * matrices->normalMatrix[2].xyz;
     outVertex.v_normal = normalize(outVertex.v_normal);
 
     outVertex.v_texcoord = vData.texcoord;
-    outVertex.v_sun = normalize((matrices.modelViewMatrix * sunDirection).xyz) - normalize((matrices.modelViewMatrix * position).xyz);
+    outVertex.v_sun = normalize((matrices->modelViewMatrix * sunDirection).xyz) - normalize((matrices->modelViewMatrix * position).xyz);
     outVertex.v_sunColor = sunInfo.sunColor;
     
     return outVertex;
