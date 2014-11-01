@@ -1,0 +1,3 @@
+[submodule "SwiftGeom"]
+	path = SwiftGeom
+	url = https://github.com/noxytrux/SwiftGeom.git
