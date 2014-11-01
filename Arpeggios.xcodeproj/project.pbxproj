@@ -27,7 +27,7 @@
 		045BA0601A04620B007A8630 /* barrel.gmf in Resources */ = {isa = PBXBuildFile; fileRef = 045BA05C1A04620B007A8630 /* barrel.gmf */; };
 		045BA0611A04620B007A8630 /* barrel.png in Resources */ = {isa = PBXBuildFile; fileRef = 045BA05D1A04620B007A8630 /* barrel.png */; };
 		045BA0621A04620B007A8630 /* Cube.png in Resources */ = {isa = PBXBuildFile; fileRef = 045BA05E1A04620B007A8630 /* Cube.png */; };
-		045BA0631A04620B007A8630 /* Skrzynka.gmf in Resources */ = {isa = PBXBuildFile; fileRef = 045BA05F1A04620B007A8630 /* Skrzynka.gmf */; };
+		045BA0631A04620B007A8630 /* box.gmf in Resources */ = {isa = PBXBuildFile; fileRef = 045BA05F1A04620B007A8630 /* box.gmf */; };
 		04AED6861A00166F0040602D /* ARPModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AED6851A00166F0040602D /* ARPModel.swift */; };
 		04AED6881A0016CA0040602D /* ARPModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AED6871A0016CA0040602D /* ARPModelManager.swift */; };
 		04F33F971A0473920068CE6A /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F33F8F1A0473920068CE6A /* Math.swift */; };
@@ -76,7 +76,7 @@
 		045BA05C1A04620B007A8630 /* barrel.gmf */ = {isa = PBXFileReference; lastKnownFileType = file; path = barrel.gmf; sourceTree = "<group>"; };
 		045BA05D1A04620B007A8630 /* barrel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = barrel.png; sourceTree = "<group>"; };
 		045BA05E1A04620B007A8630 /* Cube.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Cube.png; sourceTree = "<group>"; };
-		045BA05F1A04620B007A8630 /* Skrzynka.gmf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Skrzynka.gmf; sourceTree = "<group>"; };
+		045BA05F1A04620B007A8630 /* box.gmf */ = {isa = PBXFileReference; lastKnownFileType = file; path = box.gmf; sourceTree = "<group>"; };
 		04AED6851A00166F0040602D /* ARPModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARPModel.swift; sourceTree = "<group>"; };
 		04AED6871A0016CA0040602D /* ARPModelManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ARPModelManager.swift; sourceTree = "<group>"; };
 		04D4256619F8001400080391 /* shaderCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shaderCommon.h; sourceTree = "<group>"; };
@@ -176,7 +176,7 @@
 				045BA05C1A04620B007A8630 /* barrel.gmf */,
 				045BA05D1A04620B007A8630 /* barrel.png */,
 				045BA05E1A04620B007A8630 /* Cube.png */,
-				045BA05F1A04620B007A8630 /* Skrzynka.gmf */,
+				045BA05F1A04620B007A8630 /* box.gmf */,
 				045BA0471A03EBCD007A8630 /* checker.png */,
 				045BA0481A03EBCD007A8630 /* Mesh1_surf.png */,
 				045BA0491A03EBCD007A8630 /* Object01.png */,
@@ -329,7 +329,7 @@
 				045BA05B1A03EBCD007A8630 /* top.png in Resources */,
 				045BA0581A03EBCD007A8630 /* front.png in Resources */,
 				04284EC219EEC34D00B1E027 /* Images.xcassets in Resources */,
-				045BA0631A04620B007A8630 /* Skrzynka.gmf in Resources */,
+				045BA0631A04620B007A8630 /* box.gmf in Resources */,
 				045BA0611A04620B007A8630 /* barrel.png in Resources */,
 				045BA05A1A03EBCD007A8630 /* right.png in Resources */,
 				045BA0621A04620B007A8630 /* Cube.png in Resources */,

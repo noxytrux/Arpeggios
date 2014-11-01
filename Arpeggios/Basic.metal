@@ -17,11 +17,17 @@ vertex VertexOutput basicRenderVertex(device Vertex *vertexData [[ buffer(0) ]],
     Vertex vData = vertexData[vid];
     
     float4 position = float4(vData.position,1.0);
-    float4 normal = float4(vData.normal, 1.0);
+    float3 normal = float3(vData.normal);
     float4 sunDirection = float4(sunInfo.sunDirection, 1.0);
 
     outVertex.v_position = matrices.projectionMatrix * matrices.modelViewMatrix * position;
-    outVertex.v_normal   = (matrices.normalMatrix * normal).xyz;
+    
+    //beacuse we cannot store normal matrix as 3x3 lets recalcualte it here
+    outVertex.v_normal = normal.xxx * matrices.normalMatrix[0].xyz;
+    outVertex.v_normal += normal.yyy * matrices.normalMatrix[1].xyz;
+    outVertex.v_normal += normal.zzz * matrices.normalMatrix[2].xyz;
+    outVertex.v_normal = normalize(outVertex.v_normal);
+
     outVertex.v_texcoord = vData.texcoord;
     outVertex.v_sun = normalize((matrices.modelViewMatrix * sunDirection).xyz) - normalize((matrices.modelViewMatrix * position).xyz);
     outVertex.v_sunColor = sunInfo.sunColor;
@@ -41,7 +47,7 @@ fragment float4 basicRenderFragment(VertexOutput inFrag [[stage_in]],
         discard_fragment();
     }
     
-    float3 ambientColor = float3(0.4,0.4,0.4);
+    float3 ambientColor = float3(0.5,0.5,0.5);
     float diffuseFactor = max( dot(inFrag.v_sun, inFrag.v_normal), 0.0);
     
     return float4( float3( (ambientColor+inFrag.v_sunColor * diffuseFactor) * outColor.rgb ), outColor.a);

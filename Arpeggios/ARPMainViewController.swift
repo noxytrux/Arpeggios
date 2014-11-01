@@ -44,8 +44,8 @@ class ARPMainViewController: UIViewController {
     //MARK: matrices and sun info
    
     //vector for viewMatrix
-    var eyeVec = Vector3(x: 0.0,y: 2.0,z: -3.0)
-    var dirVec = Vector3(x: 0.0,y: -0.234083,z: 0.9)
+    var eyeVec = Vector3(x: 0.0,y: 2.0,z: 3.0)
+    var dirVec = Vector3(x: 0.0,y: -0.234083,z: -0.9)
     var upVec = Vector3(x: 0, y: 1, z: 0)
    
     var loadedModels =  [ARPModel]()
@@ -61,14 +61,17 @@ class ARPMainViewController: UIViewController {
     
     //MARK: uniform data
     var sunBuffer: MTLBuffer! = nil
-    var matrixBuffer: MTLBuffer! = nil
     var cameraMatrix: Matrix4x4 = Matrix4x4()
-    var worldMatrix: Matrix34 = Matrix34(initialize: true)
-
+   
     var rotationAngle: Float32 = 0.0
     
     var sunData = sunStructure()
     var matrixData = matrixStructure()
+
+    var inverted = Matrix33()
+    var rotMatrixX = Matrix33()
+    var rotMatrixY = Matrix33()
+    var rotMatrixZ = Matrix33()
     
     var baseStiencilState: MTLDepthStencilState! = nil
     
@@ -110,7 +113,6 @@ class ARPMainViewController: UIViewController {
         //set unifor buffers
         
         sunBuffer = device.newBufferWithBytes(&sunData, length: sizeof(sunStructure), options: nil)
-        matrixBuffer = device.newBufferWithBytes(&matrixData, length: sizeof(matrixStructure), options: nil)
         
         //load models and scene
         
@@ -125,12 +127,23 @@ class ARPMainViewController: UIViewController {
         var palmModel = ARPSingletonFactory<ARPModelManager>.sharedInstance().loadModel("palmnew", device: device)
         
         if let palmModel = palmModel {
-        
-            palmModel.modelScale = 0.15
+            
+            palmModel.modelScale = 0.12
+            palmModel.modelMatrix.t = Vector3()
+            palmModel.setCullModeForMesh(1, mode: .None)
             
             loadedModels.append(palmModel)
         }
         
+        var boxModel = ARPSingletonFactory<ARPModelManager>.sharedInstance().loadModel("box", device: device)
+        
+        if let boxModel = boxModel {
+            
+            boxModel.modelScale = 0.25
+            boxModel.modelMatrix.t = Vector3(x: 3, y:0, z:0)
+            
+            loadedModels.append(boxModel)
+        }
     }
     
     func preparePipelineStates() {
@@ -216,39 +229,35 @@ class ARPMainViewController: UIViewController {
         
         let renderEncoder = commandBuffer.renderCommandEncoderWithDescriptor(renderPassDescriptor)
         renderEncoder?.label = "Regular pass encoder"
-        renderEncoder?.setFrontFacingWinding(.Clockwise)
+        renderEncoder?.setFrontFacingWinding(.CounterClockwise)
         renderEncoder?.setDepthStencilState(baseStiencilState)
     
         renderEncoder?.setVertexBuffer(sunBuffer, offset: 0, atIndex: 2)
         
         var cameraViewMatrix = Matrix34(initialize: false)
             cameraViewMatrix.setColumnMajor44(cameraMatrix)
-    
+
         for model in loadedModels {
     
             //calcualte real model view matrix
-            worldMatrix = model.modelMatrix * model.modelScale
-            var modelViewMatrix = cameraViewMatrix * worldMatrix
+            var modelViewMatrix = cameraViewMatrix * (model.modelMatrix * model.modelScale)
             
-            var inverted = Matrix33()
             var normalMatrix = Matrix33(other: modelViewMatrix.M)
             
             if modelViewMatrix.M.getInverse(&inverted) == true {
                 
                 normalMatrix.setTransposed(inverted)
             }
-            
-            var matrixPointer = UnsafeMutablePointer<matrixStructure>(matrixBuffer.contents())
-            
+
             //set updated buffer info
             modelViewMatrix.getColumnMajor44(&matrixData.viewMatrix)
-            
+        
             var normal4x4 = Matrix34(rot: normalMatrix, trans: Vector3(x: 0, y: 0, z: 0))
                 normal4x4.getColumnMajor44(&matrixData.normalMatrix)
             
-            memcpy(matrixPointer, &matrixData, UInt(sizeof(matrixStructure)))
+            memcpy(model.matrixBuffer.contents(), &matrixData, UInt(sizeof(matrixStructure)))
             
-            renderEncoder?.setVertexBuffer(matrixBuffer, offset: 0, atIndex: 1)
+            renderEncoder?.setVertexBuffer(model.matrixBuffer, offset: 0, atIndex: 1)
             
             model.render(renderEncoder!, states: pipelineStates, shadowPass: false)
         }
@@ -284,9 +293,9 @@ class ARPMainViewController: UIViewController {
         cameraMatrix = matrix44MakeLookAt(eyeVec, eyeVec+dirVec, upVec)
     
         //udpate sun position and color
-        var sunPointer = UnsafeMutablePointer<sunStructure>(sunBuffer.contents())
-        
-        sunPosition.y += Float32(delta) * 0.1
+    
+        sunPosition.y += Float32(delta) * 0.5
+        sunPosition.x += Float32(delta) * 0.5
         
         sunData.sunVector = Vector3(x: -cosf(sunPosition.x) * sinf(sunPosition.y),
                                     y: -cosf(sunPosition.y),
@@ -297,17 +306,30 @@ class ARPMainViewController: UIViewController {
         
         sunData.sunColor = ((orangeColor * (1.0 - factor)) + (yellowColor * factor))
         
-        memcpy(sunPointer, &sunData, UInt(sizeof(sunStructure)))
+        memcpy(sunBuffer.contents(), &sunData, UInt(sizeof(sunStructure)))
         
         //update models rotation
         
         rotationAngle += Float32(delta) * 0.5
-        var rotMatrix = Matrix33()
-            rotMatrix.rotY(rotationAngle)
+       
+        rotMatrixX.rotX(rotationAngle)
+        rotMatrixY.rotY(rotationAngle)
+        rotMatrixZ.rotZ(rotationAngle)
         
-        for model in loadedModels {
-            
-            model.modelMatrix.M = rotMatrix
+        for (index, model) in enumerate(loadedModels) {
+        
+            switch(index) {
+            case 0 :
+                
+                model.modelMatrix.M = rotMatrixY
+                
+            case 1 :
+                
+                model.modelMatrix.M = rotMatrixX * rotMatrixY * rotMatrixZ
+                
+            default:
+                ()
+            }
         }
     }
 }

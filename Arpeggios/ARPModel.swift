@@ -38,27 +38,33 @@ struct ARPMeshData {
 }
 
 class ARPModel {
-
+    
     private var subMeshData = [ARPMeshData]()
     private var modelName: String = ""
     
     internal var modelScale: Float32 = 1.0
     internal var modelMatrix: Matrix34! = nil
-    
+    internal var matrixBuffer: MTLBuffer! = nil
+
     init() {
         
         modelMatrix  = Matrix34(initialize: true)
+        
     }
     
     func setCullModeForMesh(atIndex: Int, mode: MTLCullMode) {
     
-        var meshData = subMeshData[atIndex]
-            meshData.cullMode = mode
+        subMeshData[atIndex].cullMode  = mode
     }
     
     //based on B3DO model file format
     func load(name: String, device: MTLDevice) -> (loaded: Bool, error: NSError?) {
     
+        //generate unique buffer for model
+        var matrixData = matrixStructure()
+        matrixBuffer = device.newBufferWithBytes(&matrixData, length: sizeof(matrixStructure), options: nil)
+        
+        
         modelName = name
         
         var error:NSError? = nil
@@ -118,6 +124,8 @@ class ARPModel {
                         subMeshBuffer.diffuseTex = ARPSingletonFactory<ARPTextureManager>.sharedInstance().loadTexture(texName, device: device)
                         
                         if subMeshBuffer.diffuseTex == nil {
+                            
+                            subMeshBuffer.diffuseTex = ARPSingletonFactory<ARPTextureManager>.sharedInstance().loadTexture("checker", device: device)
                             
                             println("Warning no texture found for: \(texName)")
                         }
@@ -219,9 +227,9 @@ class ARPModel {
                 }
                 else{
                     
-                    encoder.setCullMode(.None)
+                    encoder.setCullMode(subMesh.cullMode)
                 }
-
+                
                 encoder.setFragmentTexture(subMesh.diffuseTex, atIndex: 0)
                 encoder.setVertexBuffer(subMesh.vertexBuffer!, offset: 0, atIndex: 0)
         
