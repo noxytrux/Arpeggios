@@ -18,7 +18,7 @@ vertex VertexOutput basicRenderVertex(device Vertex *vertexData [[ buffer(0) ]],
     
     float4 position = float4(vData.position,1.0);
     float3 normal = float3(vData.normal);
-    float4 sunDirection = float4(sunInfo.sunDirection, 1.0);
+    float4 sunDirection = float4(sunInfo.sunDirection, 0.0);
 
     outVertex.v_position = matrices->projectionMatrix * matrices->modelViewMatrix * position;
     
@@ -48,7 +48,7 @@ fragment float4 basicRenderFragment(VertexOutput inFrag [[stage_in]],
     }
     
     float3 ambientColor = float3(0.5,0.5,0.5);
-    float diffuseFactor = max( dot(inFrag.v_sun, inFrag.v_normal), 0.0);
+    float diffuseFactor = max( dot(inFrag.v_normal,inFrag.v_sun), 0.0);
     
     return float4( float3( (ambientColor+inFrag.v_sunColor * diffuseFactor) * outColor.rgb ), outColor.a);
 };
