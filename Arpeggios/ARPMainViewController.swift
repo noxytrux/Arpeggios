@@ -266,7 +266,11 @@ class ARPMainViewController: UIViewController {
             var normal4x4 = Matrix34(rot: normalMatrix, trans: Vector3(x: 0, y: 0, z: 0))
                 normal4x4.getColumnMajor44(&matrixData.normalMatrix)
             
-            memcpy(model.matrixBuffer.contents(), &matrixData, UInt(sizeof(matrixStructure)))
+            //cannot modify single value
+            var matrices = UnsafeMutablePointer<matrixStructure>(model.matrixBuffer.contents())
+                matrices.memory = matrixData
+            
+            //memcpy(model.matrixBuffer.contents(), &matrixData, UInt(sizeof(matrixStructure)))
             
             renderEncoder?.setVertexBuffer(model.matrixBuffer, offset: 0, atIndex: 1)
             
